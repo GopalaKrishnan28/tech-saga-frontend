@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Modal from "react-modal";
-
+import { Link } from "react-router-dom";
 Modal.setAppElement("#root");
 
 const ProfilePage = () => {
@@ -72,10 +72,10 @@ const ProfilePage = () => {
     <div className="p-4">
       {/* Navigation Bar */}
       <nav className="bg-blue-500 text-white p-4 rounded-md flex justify-around">
-        <a href="/profile">Profile</a>
-        <a href="/bids">Bids</a>
-        <a href="/transactions">Transaction History</a>
-      </nav>
+      <Link to="/profile">Profile</Link>
+      <Link to="/bid">Bids</Link>
+      <Link to="/transactions">Transaction History</Link>
+    </nav>
 
       {/* Profile Section */}
       <div className="mt-8">

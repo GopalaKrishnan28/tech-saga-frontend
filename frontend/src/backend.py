@@ -56,6 +56,68 @@ def add_item(user_id):
         return jsonify({"message": "Item added successfully"}), 201
     else:
         return jsonify({"error": "Failed to add item"}), 500
+bids_collection = db["bid"]
+after_bid_collection = db["after_bid"]
+
+# Route to fetch current bids
+@app.route('/current_bids/<int:seller_id>', methods=['GET'])
+def get_current_bids(seller_id):
+    current_bids = list(after_bid_collection.find({"seller_id": seller_id, "accept": "no", "item_reached": "no"}))
+    # Remove _id field from the response
+    for bid in current_bids:
+        bid["_id"] = str(bid["_id"])
+    return jsonify(current_bids), 200
+
+# Route to fetch available bids
+@app.route('/available_bids', methods=['GET'])
+def get_available_bids():
+    available_bids = []
+    bids = list(bids_collection.find())
+    for bid in bids:
+        # Check if this bid is already in the "after_bid" collection
+        exists = after_bid_collection.find_one({"bid_id": bid["bid_id"]})
+        if not exists:
+            available_bids.append(bid)
+    # Remove _id field from the response
+    for bid in available_bids:
+        bid["_id"] = str(bid["_id"])
+    return jsonify(available_bids), 200
+
+# Route to confirm a bid and move it to the "after_bid" table
+@app.route('/confirm_bid', methods=['POST'])
+def confirm_bid():
+    data = request.json
+    bid_id = data["bid_id"]
+    price = data["price"]
+    seller_id = data["seller_id"]
+    
+    # Check if the bid exists in the "bid" table
+    bid = bids_collection.find_one({"bid_id": bid_id})
+    
+    if not bid:
+        return jsonify({"error": "Bid not found"}), 404
+    
+    # Retrieve buyer_id from the bid
+    buyer_id = bid['buyer_id']
+
+    # Prepare data for the "after_bid" table
+    after_bid_data = {
+        "bid_id": bid_id,
+        "price": price,
+        "seller_id": seller_id,
+        "buyer_id": buyer_id,  # Add buyer_id here
+        "accept": "no",  # Default value
+        "item_reached": "no"  # Default value
+    }
+    
+    # Insert into the "after_bid" table
+    result = after_bid_collection.insert_one(after_bid_data)
+    
+    # Update the response with inserted ID
+    if result.inserted_id:
+        return jsonify({"message": "Bid confirmed and moved to after_bid table"}), 201
+    else:
+        return jsonify({"error": "Failed to confirm bid"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
