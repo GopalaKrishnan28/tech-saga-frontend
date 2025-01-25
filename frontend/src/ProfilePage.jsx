@@ -74,8 +74,11 @@ const ProfilePage = () => {
       <nav className="bg-blue-500 text-white p-4 rounded-md flex justify-around">
       <Link to="/profile">Profile</Link>
       <Link to="/bid">Bids</Link>
-      <Link to="/transactions">Transaction History</Link>
+      <Link to="/transaction">Transaction History</Link>
       <Link to="/bidstatus">bidstatus</Link>
+      <Link to="/bidupload">bidupload</Link>
+      <Link to="/bidconfirm">bidconfirm</Link>
+      <Link to="/delivery">delivery</Link>
     </nav>
 
       {/* Profile Section */}
