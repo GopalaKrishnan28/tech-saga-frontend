@@ -118,6 +118,51 @@ def confirm_bid():
         return jsonify({"message": "Bid confirmed and moved to after_bid table"}), 201
     else:
         return jsonify({"error": "Failed to confirm bid"}), 500
+@app.route('/successful_bids/<int:seller_id>', methods=['GET'])
+def get_successful_bids(seller_id):
+    # Fetch successful bids where accept = 'yes'
+    successful_bids = after_bid_collection.find({"seller_id": seller_id, "accept": "yes"})
+    
+    successful_bids_data = []
+    for bid in successful_bids:
+        # Get bid details from the "bid" table using bid_id
+        bid_details = bids_collection.find_one({"bid_id": bid["bid_id"]})
+        
+        if bid_details:
+            # Combine the data from both collections
+            successful_bids_data.append({
+                "bid_id": bid["bid_id"],
+                "price": bid["price"],
+                "quantity": bid_details.get("quantity"),
+                "properties": bid_details.get("properties"),
+                "buyer_id": bid_details.get("buyer_id")
+            })
+
+    return jsonify(successful_bids_data)
+
+
+@app.route('/unsuccessful_bids/<int:seller_id>', methods=['GET'])
+def get_unsuccessful_bids(seller_id):
+    # Fetch unsuccessful bids where accept = 'no'
+    unsuccessful_bids = after_bid_collection.find({"seller_id": seller_id, "accept": "none"})
+    
+    unsuccessful_bids_data = []
+    for bid in unsuccessful_bids:
+        # Get bid details from the "bid" table using bid_id
+        bid_details = bids_collection.find_one({"bid_id": bid["bid_id"]})
+        
+        if bid_details:
+            # Combine the data from both collections
+            unsuccessful_bids_data.append({
+                "bid_id": bid["bid_id"],
+                "price": bid["price"],
+                "quantity": bid_details.get("quantity"),
+                "properties": bid_details.get("properties"),
+                "buyer_id": bid_details.get("buyer_id")
+            })
+
+    return jsonify(unsuccessful_bids_data)
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

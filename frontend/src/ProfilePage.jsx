@@ -75,6 +75,7 @@ const ProfilePage = () => {
       <Link to="/profile">Profile</Link>
       <Link to="/bid">Bids</Link>
       <Link to="/transactions">Transaction History</Link>
+      <Link to="/bidstatus">bidstatus</Link>
     </nav>
 
       {/* Profile Section */}
