@@ -1,8 +1,12 @@
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
+from flask_cors import CORS
 from bson.objectid import ObjectId
 
 app = Flask(__name__)
+
+# Enable CORS for the entire app
+CORS(app)
 
 # Connect to MongoDB using the credentials
 client = MongoClient("mongodb+srv://arun:1234@cluster1.v5dye5b.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1")
@@ -23,13 +27,11 @@ def get_profile(user_id):
             "email": seller["email"],
             "contact_no": seller["contact_no"],
             "address": seller["address"],
-            "logo": seller.get("logo", "")
+            "logo": seller["logo"]
         }
-        print(seller_data)
         return jsonify(seller_data), 200
     else:
         return jsonify({"error": "Seller not found"}), 404
-
 
 # Fetch items for the given seller
 @app.route('/items/<int:user_id>', methods=['GET'])
@@ -43,24 +45,17 @@ def get_items(user_id):
         })
     return jsonify(items_list), 200
 
-
 # Add a new item for the given seller
 @app.route('/add_item/<int:user_id>', methods=['POST'])
 def add_item(user_id):
-    try:
-        new_item = request.json
-        if not new_item.get("productName") or not new_item.get("properties"):
-            return jsonify({"error": "Product name and properties are required"}), 400
-        
-        new_item["seller_id"] = user_id
-        result = items_collection.insert_one(new_item)
+    new_item = request.json
+    new_item["seller_id"] = user_id
+    result = items_collection.insert_one(new_item)
 
-        if result.inserted_id:
-            return jsonify({"message": "Item added successfully"}), 201
-        else:
-            return jsonify({"error": "Failed to add item"}), 500
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    if result.inserted_id:
+        return jsonify({"message": "Item added successfully"}), 201
+    else:
+        return jsonify({"error": "Failed to add item"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

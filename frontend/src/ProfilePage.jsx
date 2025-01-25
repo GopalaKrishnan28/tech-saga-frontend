@@ -17,6 +17,7 @@ const ProfilePage = () => {
   const fetchProfile = async () => {
     try {
       const response = await axios.get(`${apiUrl}/profile/${userId}`);
+      console.log(response.name);
       setProfile(response.data);
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -27,6 +28,7 @@ const ProfilePage = () => {
   const fetchItems = async () => {
     try {
       const response = await axios.get(`${apiUrl}/items/${userId}`);
+      console.log(response.data); // Log to check the received data
       if (Array.isArray(response.data)) {
         setItems(response.data);
       } else {
@@ -78,11 +80,13 @@ const ProfilePage = () => {
       {/* Profile Section */}
       <div className="mt-8">
         <div className="text-center">
-          <img
-            src={profile.logo || "https://via.placeholder.com/150"}
-            alt="Profile"
-            className="rounded-full mx-auto w-32 h-32 object-cover"
-          />
+        <img
+  src="https://images.pexels.com/photos/1563356/pexels-photo-1563356.jpeg?cs=srgb&dl=pexels-thatguycraig000-1563356.jpg&fm=jpg"
+  alt="Profile"
+  className="rounded-full"
+  style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '50%' }}
+/>
+
           <h1 className="text-2xl font-semibold mt-4">{profile.name}</h1>
           <p>{profile.address}</p>
           <p>{profile.email}</p>
@@ -101,7 +105,7 @@ const ProfilePage = () => {
             </button>
           </div>
           <ul>
-            {Array.isArray(items) && items.length > 0 ? (
+            {items.length > 0 ? (
               items.map((item, index) => (
                 <li key={index} className="border p-4 rounded-md mb-2">
                   <strong>{item.productName}</strong>
